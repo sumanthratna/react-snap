@@ -1,11 +1,11 @@
 {
   "name": "react-snap",
   "version": "1.23.0",
-  "description": "Zero-configuration framework-agnostic static prerendering for SPAs",
+  "description": "nata.house's fork of react-snap by stereobooster: Zero-configuration framework-agnostic static prerendering for SPAs",
   "main": "index.js",
   "author": "stereobooster",
   "license": "MIT",
-  "repository": "stereobooster/react-snap",
+  "repository": "natahouse/react-snap",
   "engines": {
     "node": ">= 8.6.0"
   },
