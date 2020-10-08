@@ -10,6 +10,8 @@ const minify = require("html-minifier").minify;
 const url = require("url");
 const minimalcss = require("minimalcss");
 const CleanCSS = require("clean-css");
+const glob = require("glob-to-regexp");
+const isGlob = require("is-glob");
 const twentyKb = 20 * 1024;
 
 const defaultOptions = {
@@ -94,7 +96,25 @@ const defaults = userOptions => {
   if (!options.include || !options.include.length) {
     console.log("🔥  include option should be an non-empty array");
     exit = true;
+  } else {
+    const hasInvalidInclude = options.include.some((path) => isGlob(path));
+    if (hasInvalidInclude) {
+      console.log("🔥  you may not use glob patterns for include.");
+      exit = true;
+    }
+  
+    if (options.exclude.length) {
+      const excludeGlobs = options.exclude.map(g => glob(g, { extended: true, globstar: true}));
+      const hasOverlappingInclude = excludeGlobs.some((excludeGlob) =>
+        options.include.some(pagePath => excludeGlob.test(pagePath))
+      );
+      if (hasOverlappingInclude) {
+        console.log("🔥  overlapping include and exclude configs were detected.");
+        exit = true;
+      }
+    }
   }
+
   if (options.preloadResources) {
     console.log(
       "🔥  preloadResources option deprecated. Use preloadImages or cacheAjaxRequests"

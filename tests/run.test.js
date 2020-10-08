@@ -37,6 +37,16 @@ describe("validates options", () => {
     run({ saveAs: "json" })
       .then(() => expect(true).toEqual(false))
       .catch(e => expect(e).toEqual("")));
+
+  test("include cannot have glob patterns", () =>
+    run({ include: ["/a/*"] })
+      .then(() => expect(true).toEqual(false))
+      .catch((e) => expect(e).toEqual("")));
+    
+  test("include and exclude may not overlap", () =>
+    run({ include: ["/a/b"], exclude: ["/a/*"] })
+      .then(() => expect(true).toEqual(false))
+      .catch((e) => expect(e).toEqual("")));
 });
 
 describe("one page", () => {

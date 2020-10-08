@@ -16,6 +16,7 @@
     "glob-to-regexp": "^0.4.1",
     "highland": "2.13.4",
     "html-minifier": "4.0.0",
+    "is-glob": "^4.0.1",
     "minimalcss": "0.8.2",
     "mkdirp": "0.5.1",
     "puppeteer": "^1.8.0",
