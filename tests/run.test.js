@@ -243,7 +243,7 @@ describe("complex routes", () => {
   beforeAll(() => snapRun(fs, { source }));
 
   test("crawls all links and saves as index.html in separate folders", () => {
-    expect(filesCreated()).toEqual(7);
+    expect(filesCreated()).toEqual(9);
     expect(names()).toEqual(
       expect.arrayContaining([
         `/${source}/1/path/index.html`, // without slash in the end
@@ -251,6 +251,8 @@ describe("complex routes", () => {
         `/${source}/3/index.html`, // ignores hash
         `/${source}/4/index.html`, // ignores query
         `/${source}/5/index.html`, // link rel="alternate"
+        `/${source}/6/index.html`, // link rel="alternate"
+        `/${source}/6/subroute/index.html`, // link rel="alternate"
       ])
     );
   });
@@ -281,7 +283,7 @@ describe("complex routes with route filename", () => {
   beforeAll(() => snapRun(fs, { source, useRouteAsFileName: true }));
 
   test("crawls all links and saves as index.html in separate folders", () => {
-    expect(filesCreated()).toEqual(7);
+    expect(filesCreated()).toEqual(9);
     expect(names()).toEqual(
       expect.arrayContaining([
         `/${source}/1/path.html`, // without slash in the end
@@ -289,6 +291,8 @@ describe("complex routes with route filename", () => {
         `/${source}/3.html`, // ignores hash
         `/${source}/4.html`, // ignores query
         `/${source}/5.html`, // link rel="alternate"
+        `/${source}/6.html`, // link rel="alternate"
+        `/${source}/6/subroute.html`, // link rel="alternate"
       ])
     );
   });
