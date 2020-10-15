@@ -37,6 +37,16 @@ describe("validates options", () => {
     run({ saveAs: "json" })
       .then(() => expect(true).toEqual(false))
       .catch(e => expect(e).toEqual("")));
+
+  test("include cannot have glob patterns", () =>
+    run({ include: ["/a/*"] })
+      .then(() => expect(true).toEqual(false))
+      .catch((e) => expect(e).toEqual("")));
+    
+  test("include and exclude may not overlap", () =>
+    run({ include: ["/a/b"], exclude: ["/a/*"] })
+      .then(() => expect(true).toEqual(false))
+      .catch((e) => expect(e).toEqual("")));
 });
 
 describe("one page", () => {
@@ -207,6 +217,43 @@ describe("possible to disable crawl option", () => {
         `/${source}/2/index.html`, // with slash in the end
         `/${source}/3/index.html`, // ignores hash
         `/${source}/4/index.html` // ignores query
+      ])
+    );
+  });
+  test("copies (original) index.html to 200.html", () => {
+    expect(createReadStreamMock.mock.calls).toEqual([
+      [`/${source}/index.html`]
+    ]);
+    expect(createWriteStreamMock.mock.calls).toEqual([[`/${source}/200.html`]]);
+  });
+});
+
+describe("disable crawling specific routes using exclude option", () => {
+  const source = "tests/examples/many-pages";
+  const {
+    fs,
+    createReadStreamMock,
+    createWriteStreamMock,
+    filesCreated,
+    names
+  } = mockFs();
+  beforeAll(() =>
+    snapRun(fs, {
+      source,
+      exclude: ["/5"]
+    })
+  );
+  test("crawls all links but excluded ones and saves as index.html in separate folders", () => {
+    // includes / and /404.html
+    expect(filesCreated()).toEqual(6);
+    expect(names()).toEqual(
+      expect.arrayContaining([
+        `/${source}/1/index.html`, // without slash in the end
+        `/${source}/2/index.html`, // with slash in the end
+        `/${source}/3/index.html`, // ignores hash
+        `/${source}/4/index.html`, // ignores query
+        `/${source}/404.html`, // 404 page
+        `/${source}/index.html` // crawled /
       ])
     );
   });
