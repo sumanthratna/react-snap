@@ -629,23 +629,28 @@ const saveAsHtml = async ({ page, filePath, options, route, fs }) => {
   const minifiedContent = options.minifyHtml
     ? minify(content, options.minifyHtml)
     : content;
+  const isRootRoute = route == '/'
+  const hasTrailingSlash = route.endsWith('/')
+
   filePath = filePath.replace(/\//g, path.sep);
 
-  if (route.endsWith('/') && route !== '/') {
+  // remove trailing / to prevent saving with filename '/route.html'
+  if (hasTrailingSlash && !isRootRoute) {
     filePath = filePath.slice(0, -1)
     route = route.slice(0, -1)
   }
 
-  if (route.endsWith(".html") || (options.useRouteAsFileName && route !== "/")) {
+  // saving as 200.html, 404.html
+  // if useRouteAsFileName: route1.html, route2.html...
+  if (route.endsWith(".html") || (options.useRouteAsFileName && !isRootRoute)) {
     if (route.endsWith("/404.html") && !title.includes("404"))
       console.log('⚠️  warning: 404 page title does not contain "404" string');
     mkdirp.sync(path.dirname(filePath));
-    if (!route.endsWith(".html")) {
-      fs.writeFileSync(`${filePath}.html`, minifiedContent);
-    } else {
-      fs.writeFileSync(filePath, minifiedContent);
-    }
+
+    const outputPath = route.endsWith(".html") ? filePath :  `${filePath}.html`
+    fs.writeFileSync(outputPath, minifiedContent);
   } else {
+    // saving as route1/index.html, route2/index.html...
     if (title.includes("404"))
       console.log(`⚠️  warning: page not found ${route}`);
     mkdirp.sync(filePath);
