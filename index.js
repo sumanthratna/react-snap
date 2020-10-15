@@ -66,6 +66,9 @@ const defaultOptions = {
   inlineCss: false,
   //# feature creeps to generate screenshots
   saveAs: "html",
+  // if true latest path becomes file name: '{route}.html' instead of 'route/index.html'
+  // or 'path/to/{route}.html' instead of 'path/to/route/index.html'
+  useRouteAsFileName: false,
   crawl: true,
   waitFor: false,
   externalServer: false,
@@ -627,11 +630,21 @@ const saveAsHtml = async ({ page, filePath, options, route, fs }) => {
     ? minify(content, options.minifyHtml)
     : content;
   filePath = filePath.replace(/\//g, path.sep);
-  if (route.endsWith(".html")) {
+
+  if (route.endsWith('/') && route !== '/') {
+    filePath = filePath.slice(0, -1)
+    route = route.slice(0, -1)
+  }
+
+  if (route.endsWith(".html") || (options.useRouteAsFileName && route !== "/")) {
     if (route.endsWith("/404.html") && !title.includes("404"))
       console.log('⚠️  warning: 404 page title does not contain "404" string');
     mkdirp.sync(path.dirname(filePath));
-    fs.writeFileSync(filePath, minifiedContent);
+    if (!route.endsWith(".html")) {
+      fs.writeFileSync(`${filePath}.html`, minifiedContent);
+    } else {
+      fs.writeFileSync(filePath, minifiedContent);
+    }
   } else {
     if (title.includes("404"))
       console.log(`⚠️  warning: page not found ${route}`);
