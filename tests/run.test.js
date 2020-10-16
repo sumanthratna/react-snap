@@ -192,6 +192,124 @@ describe("many pages", () => {
   });
 });
 
+describe("save as route name", () => {
+  const source = "tests/examples/many-pages";
+  const {
+    fs,
+    createReadStreamMock,
+    createWriteStreamMock,
+    filesCreated,
+    name,
+    names
+  } = mockFs();
+  beforeAll(() => snapRun(fs, { source, useRouteAsFileName: true }));
+
+  test("crawls all links and saves as index.html in separate folders", () => {
+    expect(filesCreated()).toEqual(7);
+    expect(names()).toEqual(
+      expect.arrayContaining([
+        `/${source}/1.html`, // without slash in the end
+        `/${source}/2.html`, // with slash in the end
+        `/${source}/3.html`, // ignores hash
+        `/${source}/4.html`, // ignores query
+        `/${source}/5.html`, // link rel="alternate"
+      ])
+    );
+  });
+  test("crawls / and saves as index.html to the same folder", () => {
+    expect(name(0)).toEqual(`/${source}/index.html`);
+  });
+  test("if there is more than page it crawls 404.html", () => {
+    expect(names()).toEqual(expect.arrayContaining([`/${source}/404.html`]));
+  });
+  test("copies (original) index.html to 200.html", () => {
+    expect(createReadStreamMock.mock.calls).toEqual([
+      [`/${source}/index.html`]
+    ]);
+    expect(createWriteStreamMock.mock.calls).toEqual([[`/${source}/200.html`]]);
+  });
+});
+
+describe("complex routes", () => {
+  const source = "tests/examples/complex-routes";
+  const {
+    fs,
+    createReadStreamMock,
+    createWriteStreamMock,
+    filesCreated,
+    name,
+    names
+  } = mockFs();
+  beforeAll(() => snapRun(fs, { source }));
+
+  test("crawls all links and saves as index.html in separate folders", () => {
+    expect(filesCreated()).toEqual(9);
+    expect(names()).toEqual(
+      expect.arrayContaining([
+        `/${source}/1/path/index.html`, // without slash in the end
+        `/${source}/2/path/to/index.html`, // with slash in the end
+        `/${source}/3/index.html`, // ignores hash
+        `/${source}/4/index.html`, // ignores query
+        `/${source}/5/index.html`, // link rel="alternate"
+        `/${source}/6/index.html`, // link rel="alternate"
+        `/${source}/6/subroute/index.html`, // link rel="alternate"
+      ])
+    );
+  });
+  test("crawls / and saves as index.html to the same folder", () => {
+    expect(name(0)).toEqual(`/${source}/index.html`);
+  });
+  test("if there is more than page it crawls 404.html", () => {
+    expect(names()).toEqual(expect.arrayContaining([`/${source}/404.html`]));
+  });
+  test("copies (original) index.html to 200.html", () => {
+    expect(createReadStreamMock.mock.calls).toEqual([
+      [`/${source}/index.html`]
+    ]);
+    expect(createWriteStreamMock.mock.calls).toEqual([[`/${source}/200.html`]]);
+  });
+});
+
+describe("complex routes with route filename", () => {
+  const source = "tests/examples/complex-routes";
+  const {
+    fs,
+    createReadStreamMock,
+    createWriteStreamMock,
+    filesCreated,
+    name,
+    names
+  } = mockFs();
+  beforeAll(() => snapRun(fs, { source, useRouteAsFileName: true }));
+
+  test("crawls all links and saves as index.html in separate folders", () => {
+    expect(filesCreated()).toEqual(9);
+    expect(names()).toEqual(
+      expect.arrayContaining([
+        `/${source}/1/path.html`, // without slash in the end
+        `/${source}/2/path/to.html`, // with slash in the end
+        `/${source}/3.html`, // ignores hash
+        `/${source}/4.html`, // ignores query
+        `/${source}/5.html`, // link rel="alternate"
+        `/${source}/6.html`, // link rel="alternate"
+        `/${source}/6/subroute.html`, // link rel="alternate"
+      ])
+    );
+  });
+  test("crawls / and saves as index.html to the same folder", () => {
+    expect(name(0)).toEqual(`/${source}/index.html`);
+  });
+  test("if there is more than page it crawls 404.html", () => {
+    expect(names()).toEqual(expect.arrayContaining([`/${source}/404.html`]));
+  });
+  test("copies (original) index.html to 200.html", () => {
+    expect(createReadStreamMock.mock.calls).toEqual([
+      [`/${source}/index.html`]
+    ]);
+    expect(createWriteStreamMock.mock.calls).toEqual([[`/${source}/200.html`]]);
+  });
+});
+
 describe("possible to disable crawl option", () => {
   const source = "tests/examples/many-pages";
   const {

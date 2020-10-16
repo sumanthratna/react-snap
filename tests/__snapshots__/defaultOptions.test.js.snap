@@ -46,6 +46,7 @@ Object {
   "skipThirdPartyRequests": false,
   "source": "build",
   "sourceMaps": true,
+  "useRouteAsFileName": false,
   "userAgent": "ReactSnap",
   "viewport": Object {
     "height": 850,
