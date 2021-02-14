@@ -247,7 +247,9 @@ const crawl = async opt => {
           sourcemapStore
         });
         beforeFetch && beforeFetch({ page, route });
-        await page.setUserAgent(options.userAgent);
+        if (options.userAgent) {
+          await page.setUserAgent(options.userAgent);
+        }
         const tracker = createTracker(page);
         try {
           await page.goto(pageUrl, { waitUntil: "networkidle0" });
